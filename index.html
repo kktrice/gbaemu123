@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My GBA Player</title>
+  </head>
+
+  <body
+    style="
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+    "
+  >
+    <h2>Upload Your GBA ROM</h2>
+    <input type="file" id="romInput" accept=".gba" />
+
+    <br /><br />
+
+    <div id="game"></div>
+
+    <script>
+      document
+        .getElementById('romInput')
+        .addEventListener('change', function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+
+          reader.onload = function () {
+            window.EJS_player = '#game';
+            window.EJS_core = 'gba';
+            window.EJS_gameUrl = reader.result;
+
+            const script = document.createElement('script');
+            script.src = 'https://www.emulatorjs.com/loader.js';
+            document.body.appendChild(script);
+          };
+
+          reader.readAsDataURL(file);
+        });
+    </script>
+  </body>
+</html>
