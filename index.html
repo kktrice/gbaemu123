@@ -1,55 +1,70 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>My GBA Player</title>
-  </head>
-
-  <body
-    style="
+<head>
+  <meta charset="UTF-8">
+  <title>GBA Emulator</title>
+  <style>
+    body {
       background: black;
       color: white;
       text-align: center;
       font-family: sans-serif;
-    "
-  >
-    <h2>Upload Your GBA ROM</h2>
-    <input type="file" id="romInput" accept=".gba" />
+    }
+    #game-container {
+      width: 640px;
+      height: 480px;
+      margin: 20px auto;
+    }
+    #game-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      image-rendering: pixelated;
+      background: black;
+    }
+    input[type="file"] {
+      margin-top: 20px;
+      color: white;
+    }
+  </style>
+</head>
 
-    <br /><br />
+<body>
 
-    <div id="game" style="width:640px; height:480px; margin:auto;"></div>
+<h2>Upload Your GBA ROM</h2>
+<input type="file" id="romInput" accept=".gba">
 
+<div id="game-container"></div>
 
-    <script>
-      document
-        .getElementById('romInput')
-        .addEventListener('change', function (e) {
-          const file = e.target.files[0];
-          if (!file) return;
+<!-- EmulatorJS loader -->
+<script src="https://www.emulatorjs.com/loader.js"></script>
 
-          const reader = new FileReader();
+<script>
+const romInput = document.getElementById("romInput");
+romInput.addEventListener("change", function() {
+  const file = romInput.files[0];
+  if (!file) return;
 
-          reader.onload = function () {
-            window.EJS_player = '#game';
-            window.EJS_core = 'gba';
-            window.EJS_gameUrl = reader.result;
+  // Read the ROM as ArrayBuffer (better for HTTPS / GitHub Pages)
+  const reader = new FileReader();
+  reader.onload = function() {
+    const arrayBuffer = reader.result;
 
-            const script = document.createElement('script');
-            script.src = 'https://www.emulatorjs.com/loader.js';
-            document.body.appendChild(script);
-          };
+    // Create a Blob URL that the emulator can fetch
+    const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
+    const blobURL = URL.createObjectURL(blob);
 
-          reader.readAsDataURL(file);
-        });
-    </script>
-  </body>
+    // Set up EmulatorJS
+    EJS_player = "#game-container";
+    EJS_core = "gba";
+    EJS_gameUrl = blobURL;
+
+    if (typeof EJS_start === "function") {
+      EJS_start();
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+</script>
+
+</body>
 </html>
-<style>
-#game canvas {
-  width: 100% !important;
-  height: 100% !important;
-  image-rendering: pixelated; /* keeps pixels sharp for pixel games */
-}
-</style>
-
-
